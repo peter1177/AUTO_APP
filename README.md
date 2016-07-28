@@ -8,4 +8,6 @@ cd AUTO_APP
 
 npm install
 
+npm install react-native-tab-navigator --save
+
 
