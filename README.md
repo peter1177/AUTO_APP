@@ -1,2 +1,2 @@
 # AUTO_APP
-A Auto app for zhonglin
+A Auto app by react-native
