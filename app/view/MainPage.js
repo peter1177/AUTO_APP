@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 
 
-import Swiper from 'react-native-swiper';
+// import Swiper from 'react-native-swiper';
 
 import {
   StyleSheet,
