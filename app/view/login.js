@@ -10,7 +10,10 @@ import {
   TextInput
 } from 'react-native';
 
+import Dimensions from 'Dimensions';
 
+const width=Dimensions.get('window').width;
+const height=Dimensions.get('window').height;
 
 var styles = StyleSheet.create({
   topview: {
@@ -18,13 +21,22 @@ var styles = StyleSheet.create({
     //justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#5ab0e6',
-	height: 80
+	height: 60
   },
   title: {
     color: 'white',
     //backgroundColor: 'white',
-    fontSize: 30,
-	marginTop: 25
+    fontSize: 22,
+	marginTop: 20
+  },
+	backImg: {
+    // borderRadius: 100,
+    // resizeMode: 'cover'
+    width: width,
+    // flex:1,
+    // alignSelf:'stretch',
+    height: height
+    // marginLeft: 20
   }
 });
 
@@ -35,26 +47,30 @@ export default class login extends Component {
 	<View >
 		
 		
-			<View style={styles.topview}>
-				<Text style={styles.title}>
-					登录
-				</Text>
-			</View>
-			<View style={{  justifyContent: 'center', marginTop: 150}}>
-				<TextInput placeholder="请输入手机号码" style={{ backgroundColor: 'white',fontSize:30}}/>
-			</View>
-		  
-			<View style={{ justifyContent: 'center'}}>
-				<TextInput placeholder="请输入密码" style={{ backgroundColor: 'white',fontSize:30}} />
-			</View>
-			
-			<View style={{justifyContent: 'center',alignItems: 'center',height: 80, marginTop:30}}>
-				<View style={{justifyContent: 'center',alignItems: 'center',backgroundColor: '#5ab0e6',height: 60, width:550,borderRadius: 7}}>
-					<Text style={{ color: 'white',fontSize: 25,marginTop: 10}}>
+			<Image source={require('../images/login_bg1.png') } style={styles.backImg} >
+				<View style={styles.topview}>
+					<Text style={styles.title}>
 						登录
 					</Text>
 				</View>
-			</View>
+				<View style={{  justifyContent: 'center', marginTop: 150}}>
+					<TextInput placeholder="请输入手机号码" style={{ backgroundColor: 'white',fontSize:19, height:80, borderBottomWidth:1,borderColor: '#f3f3f3'}}/>
+				</View>
+				
+				<View style={{ justifyContent: 'center'}}>
+					<TextInput placeholder="请输入密码" style={{ backgroundColor: 'white',fontSize:19,height:80}} />
+				</View>
+				
+				<View style={{justifyContent: 'center',alignItems: 'center',height: 60, marginTop:30}}>
+					<View style={{justifyContent: 'center',alignItems: 'center',backgroundColor: '#5ab0e6',height: 60, alignSelf:'stretch',borderRadius: 7,marginLeft:20,marginRight:20}}>
+						<Text style={{ color: 'white',fontSize: 20,marginTop: 7}}>
+							登录
+						</Text>
+					</View>
+				</View>
+		
+		
+			</Image>
 		
 	</View>	
 		
