@@ -1,0 +1,3 @@
+rootProject.name = 'AUTO_APP'
+
+include ':app'
