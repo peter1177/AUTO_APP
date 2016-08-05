@@ -13,7 +13,8 @@ import {
   View,
   TouchableHighlight,
   ActivityIndicatorIOS,
-  Image
+  Image,
+  ScrollView
 } from 'react-native';
 
 
@@ -209,7 +210,7 @@ export default class MainPage extends Component {
 
 
     return (
-      <View style={styles.container}>
+       <ScrollView contentContainerStyle={styles.container}>
 
         <View style={styles.topview}>
 
@@ -316,7 +317,7 @@ export default class MainPage extends Component {
       
         </View>
 
-      </View>
+     </ScrollView>
 
 
     );
