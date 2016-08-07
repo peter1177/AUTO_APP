@@ -17,7 +17,7 @@ var styles = StyleSheet.create({
     //justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#5ab0e6',
-    height: 135
+    height: 40
   }
   return:{
 
@@ -33,6 +33,10 @@ export default class User {
       <View style={styles.topview}>
         <View style={styles.less}>
                   <
+        </View>
+        <View style={styles.less}>
+          <text>个人信息</text>
+
         </View>
       </View>
     )
