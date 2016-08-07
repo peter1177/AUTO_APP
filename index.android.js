@@ -1,6 +1,6 @@
 'use strict';
 
-import index from './app/view/index';
+import root from './app/view/root';
 
 import {
   AppRegistry
@@ -8,4 +8,4 @@ import {
 
 
 
-AppRegistry.registerComponent('AUTO_APP', () => index);
+AppRegistry.registerComponent('AUTO_APP', () => root);

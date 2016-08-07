@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 
 // import Swiper from 'react-native-swiper';
 
+import User from './user';
+
 import {
   StyleSheet,
   Text,
@@ -14,6 +16,7 @@ import {
   TouchableHighlight,
   ActivityIndicatorIOS,
   Image,
+  TouchableOpacity,
   ScrollView
 } from 'react-native';
 
@@ -198,7 +201,14 @@ export default class MainPage extends Component {
   }
 
 
+  _pressH() {
 
+    this.props.navigator.push({
+      name: 'User',
+      component: User
+    })
+
+  }
 
 
 
@@ -213,8 +223,9 @@ export default class MainPage extends Component {
        <ScrollView contentContainerStyle={styles.container}>
 
         <View style={styles.topview}>
-
-          <Image source={require('../img/h.jpg') } style={styles.userIcon} />
+          <TouchableOpacity onPress={this._pressH.bind(this) } >
+            <Image source={require('../img/h.jpg') } style={styles.userIcon} />
+          </TouchableOpacity>
           <View style={styles.nemeArea}>
             <Text style={styles.nameText}>
               小芳芳
