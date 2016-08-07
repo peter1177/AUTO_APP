@@ -325,7 +325,7 @@ export default class MainPage extends Component {
           <Image source={require('../img/h.jpg') } style={styles.buttonIcon} />
           <Text style={{ fontSize: 19, textAlign: 'center' }} >网连后勤</Text>
           </View>
-      
+
         </View>
 
      </ScrollView>
