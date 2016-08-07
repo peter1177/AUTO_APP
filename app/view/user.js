@@ -18,10 +18,7 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#5ab0e6',
     height: 40
-  }
-  return:{
-
-  }
+  },
 })
 
 export default class User {
@@ -32,13 +29,14 @@ export default class User {
     return(
       <View style={styles.topview}>
         <View style={styles.less}>
-                  <
+                    <Text>rr</Text>
         </View>
         <View style={styles.less}>
-          <text>个人信息</text>
+          <Text>个人信息</Text>
 
         </View>
       </View>
-    )
+
+    );
   }
 }
