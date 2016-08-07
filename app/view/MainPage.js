@@ -16,6 +16,7 @@ import {
   TouchableHighlight,
   ActivityIndicatorIOS,
   Image,
+  Navigator,
   TouchableOpacity,
   ScrollView
 } from 'react-native';

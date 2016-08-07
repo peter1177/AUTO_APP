@@ -1,3 +1,6 @@
+
+'use strict';
+
 import React, { Component } from 'react';
 
 import {
@@ -9,6 +12,7 @@ import {
   Navigator
 } from 'react-native';
 
+
 var styles = StyleSheet.create({
   topview: {
     flex: 1,
@@ -19,26 +23,24 @@ var styles = StyleSheet.create({
     backgroundColor: '#5ab0e6',
     height: 40
   }
-  return:{
+});
 
+export default class user extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      message: ''
+    };
   }
-})
-
-export default class User {
-  constructor() {
-
-  }
-  render(){
-    return(
+  render() {
+    return (
       <View style={styles.topview}>
-        <View style={styles.less}>
-                  <
+        <View >
         </View>
-        <View style={styles.less}>
-          <text>个人信息</text>
-
+        <View >
+          <Text>个人信息</Text>
         </View>
       </View>
-    )
+    );
   }
 }
