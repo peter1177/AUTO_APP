@@ -3,14 +3,20 @@
 
 import React, { Component } from 'react';
 
+//var ImagePickerManager = require('NativeModules').ImagePickerManager;
+var ImagePickerManager = require('react-native-image-picker');
+
 import {
   AppRegistry,
   StyleSheet,
   Text,
+  TextInput,
   View,
   Image,
   Navigator,
-  TouchableOpacity
+  TouchableOpacity,
+  Picker,
+  Alert
 } from 'react-native';
 
 
@@ -76,21 +82,134 @@ var styles = StyleSheet.create({
     marginRight: 20
   },
   contextLeftText:{ //内容左边的Text
-    marginLeft: 20
+    //marginLeft: 20
   },
   contextRightText:{ //内容右边的Text
     alignItems: 'flex-end',
-    marginRight: 20
+    textAlign: 'right',
+    width:100
+  },
+  userIcon: {  //头像图片
+      borderRadius: 100,
+      marginLeft: 20,
+      width: 80,
+      height: 80
+    },
+  userIconRowView: { //带有头像的那一行
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    alignSelf: 'stretch',
+    height: 90,
+    borderBottomWidth: 3,
+    borderColor: '#f3f3f3'
   }
 });
+
+//数据来源地址。
+var REQUEST_URL = 'http://192.168.5.22:8080/hud/rest/appUser/getUserInfo.do?userId=1';
+var sexPicker = '{"男":"男",“女”:"女"}';
 
 export default class user extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      message: ''
+      message: '',
+      isLoading: false,
+      userName: '',  //用户名称
+      appId: '',    //系统生成的ID
+      status: '',   //签名
+      sex: '',      //性别
+    	district: '', //地区
+    	carNum: '',   //车牌号
+    	level: '',    //等级
+    	url: '',       //头像的地址
+      avatarSource: null //相册用
     };
+
+    this.fetchData = this.fetchData.bind(this);
   }
+
+  componentDidMount() {
+    this.fetchData();
+  }
+  fetchData() {
+      fetch(REQUEST_URL)
+        .then((response) => response.json())
+        .then((responseData) => {
+          this.setState({
+            userName: responseData.userName,
+            isLoading: true,
+            appId: responseData.appId,    //系统生成的ID
+            status: responseData.status,   //签名
+            sex: responseData.sex,      //性别
+            district: responseData.district, //地区
+            carNum: responseData.carNum,   //车牌号
+            level: responseData.level,    //等级
+            url: responseData.url      //头像的地址
+          });
+        })
+        .catch(error =>
+        this.setState({
+          isLoading: false,
+          message: 'Something bad happened ' + error
+         }));
+    }
+
+
+  _save() {
+    this.props.navigator.push({
+      name: 'user',
+      component: user
+    })
+  }
+
+
+  //换头像
+  selectPhotoTapped(picType) {
+
+      const options = {
+          title: '选择图片', // specify null or empty string to remove the title
+          cancelButtonTitle: '取消',
+          takePhotoButtonTitle: '拍照', // specify null or empty string to remove this button
+          chooseFromLibraryButtonTitle: '图库', // specify null or empty string to remove this button
+          //customButtons: {
+          //    'Choose Photo from Facebook': 'fb', // [Button Text] : [String returned upon selection]
+          //},
+          cameraType: 'back', // 'front' or 'back'
+          mediaType: 'photo',
+          //videoQuality: 'high', // 'low', 'medium', or 'high'
+          maxWidth: 200, // photos only
+          maxHeight: 200, // photos only
+          allowsEditing: true,
+          noData: false,
+      };
+
+      ImagePickerManager.showImagePicker(options, (response) => {
+        console.log('Response = ', response);
+
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        }
+        else if (response.error) {
+          console.log('ImagePickerManager Error: ', response.error);
+        }
+        else if (response.customButton) {
+          console.log('User tapped custom button: ', response.customButton);
+        }
+        else {
+          var source;
+
+          //Alert.alert('温馨提醒',response.uri);
+          // You can display the image using either:
+          source = {uri: response.uri, isStatic: true};
+          this.setState({
+            avatarSource: source
+          });
+        }
+      });
+    }
+
   render() {
     return (
       <View style={styles.pageView}>
@@ -105,17 +224,20 @@ export default class user extends Component {
           </View>
         </View>
         <View style={styles.contextView}>
-          <View style={styles.contextRowView}>
+          <View style={styles.userIconRowView}>
             <View style={styles.contextLeftView}>
                <Text style={styles.contextLeftText}>
                   头像
                </Text>
             </View>
-            <View style={styles.contextRightView}>
-              <Text style={styles.contextRightText}>
-                  个人信息
-              </Text>
-            </View>
+
+              <View style={styles.contextRightView}>
+                <TouchableOpacity onPress={() => this.selectPhotoTapped('shenfen')} style={styles.uploadArea}>
+                  <Image source={this.state.avatarSource} style={styles.userIcon} />
+                  <Image source={require('../img/h.jpg') } style={styles.userIcon} />
+                </TouchableOpacity>
+              </View>
+
           </View>
           <View style={styles.contextRowView}>
             <View style={styles.contextLeftView}>
@@ -124,9 +246,11 @@ export default class user extends Component {
                </Text>
             </View>
             <View style={styles.contextRightView}>
-              <Text style={styles.contextRightText}>
-                  小芳芳
-              </Text>
+              <TextInput style={styles.contextRightText}
+                 underlineColorAndroid="transparent"
+                 onChangeText={(userName) => this.setState({userName})}
+                 value={this.state.userName}
+               />
             </View>
           </View>
           <View style={styles.contextRowView}>
@@ -137,9 +261,88 @@ export default class user extends Component {
             </View>
             <View style={styles.contextRightView}>
               <Text style={styles.contextRightText}>
-                  xiaofangfang
+                  {this.state.appId}
               </Text>
             </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  性别
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <Picker mode={'dropdown'} style={{width:55}}
+                underlineColorAndroid="transparent"
+                selectedValue={this.state.sex}
+                onValueChange={(sex) => this.setState({sex: sex})}>
+                <Picker.Item label="男" value="男" />
+                <Picker.Item label="女" value="女" />
+              </Picker>
+
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  地区
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <TextInput style={styles.contextRightText}
+                 underlineColorAndroid="transparent"
+                 onChangeText={(district) => this.setState({district})}
+                 value={this.state.district}
+               />
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  车牌号
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <TextInput style={styles.contextRightText}
+                 underlineColorAndroid="transparent"
+                 onChangeText={(carNum) => this.setState({carNum})}
+                 value={this.state.carNum}
+               />
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  等级
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <Text style={styles.contextRightText}>
+                  {this.state.level}
+              </Text>
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  个性签名
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <TextInput style={ {width: 200}}
+                 underlineColorAndroid="transparent"
+                 multiline={true}
+                 onChangeText={(status) => this.setState({status})}
+                 value={this.state.status}
+               />
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+          <View style={{flex: 1,justifyContent: 'center',alignItems: 'center',backgroundColor: '#5ab0e6',height: 60, alignSelf:'stretch',borderRadius: 7,marginLeft:20,marginRight:20}}>
+						<Text style={{ color: 'white',fontSize: 20,marginTop: 7}}>
+							保存
+						</Text>
+					</View>
           </View>
         </View>
       </View>
