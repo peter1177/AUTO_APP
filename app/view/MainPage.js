@@ -203,11 +203,13 @@ export default class MainPage extends Component {
 
   _pressH() {
 
-    this.props.navigator.push({
-      name: 'User',
-      component: User
-    })
+    // this.props.navigator.push({
+    //   name: 'User',
+    //   component: User
+    // })
 
+
+    this.props.onPressH();
   }
 
 

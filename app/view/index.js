@@ -8,6 +8,8 @@ import Login from './login';
 
 import TabNavigator from 'react-native-tab-navigator';
 
+import User from './user';
+
 import {
   AppRegistry,
   StyleSheet,
@@ -30,6 +32,16 @@ export default class index extends Component {
     };
   }
 
+
+ _pressH = () => {
+
+    this.props.navigator.push({
+      name: 'User',
+      component: User
+    })
+
+
+  }
 
 
   render() {
@@ -64,6 +76,10 @@ export default class index extends Component {
 
 
     );
+
+
+     
+
     return (
       <TabNavigator tabBarStyle={styles.tab} > 
         <TabNavigator.Item 
@@ -73,7 +89,7 @@ export default class index extends Component {
           renderSelectedIcon={() => <Image source={require('../images/1.png') } />}
           // badgeText="1"
           onPress={() => this.setState({ selectedTab: 'home' }) }>
-          <MainPage/>
+          <MainPage onPressH={this._pressH} />
         </TabNavigator.Item>
         <TabNavigator.Item
           selected={this.state.selectedTab === 'zhishiku'}
