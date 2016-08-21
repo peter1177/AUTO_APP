@@ -4,7 +4,7 @@
 import React, { Component } from 'react';
 
 //var ImagePickerManager = require('NativeModules').ImagePickerManager;
-var ImagePickerManager = require('react-native-image-picker');
+ var ImagePickerManager = require('react-native-image-picker');
 
 import {
   AppRegistry,
@@ -103,6 +103,12 @@ var styles = StyleSheet.create({
     height: 90,
     borderBottomWidth: 3,
     borderColor: '#f3f3f3'
+  },
+    description: {
+    marginBottom: 20,
+    fontSize: 18,
+    textAlign: 'center',
+    color: '#656565'
   }
 });
 
@@ -137,6 +143,8 @@ export default class user extends Component {
       fetch(REQUEST_URL)
         .then((response) => response.json())
         .then((responseData) => {
+
+          console.log(responseData);
           this.setState({
             userName: responseData.userName,
             isLoading: true,
@@ -344,7 +352,10 @@ export default class user extends Component {
 						</Text>
 					</View>
           </View>
+          <Text style={styles.description}>{this.state.message}</Text>
         </View>
+
+        
       </View>
     );
   }
