@@ -113,13 +113,16 @@ var styles = StyleSheet.create({
 });
 
 //数据来源地址。
-var REQUEST_URL = 'http://192.168.5.22:8080/hud/rest/appUser/getUserInfo.do?userId=1';
+var wsUrl = 'http://192.168.5.22:8080/hud';
+var REQUEST_URL = wsUrl + '/rest/appUser/getUserInfo.do?userId=1';
+
 var sexPicker = '{"男":"男",“女”:"女"}';
 
 export default class user extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      appUserId: '',
       message: '',
       isLoading: false,
       userName: '',  //用户名称
@@ -146,6 +149,7 @@ export default class user extends Component {
 
           console.log(responseData);
           this.setState({
+            appUserId:responseData.appUserId,
             userName: responseData.userName,
             isLoading: true,
             appId: responseData.appId,    //系统生成的ID
@@ -154,7 +158,7 @@ export default class user extends Component {
             district: responseData.district, //地区
             carNum: responseData.carNum,   //车牌号
             level: responseData.level,    //等级
-            url: responseData.url      //头像的地址
+            url: wsUrl +  responseData.url      //头像的地址
           });
         })
         .catch(error =>
@@ -172,6 +176,32 @@ export default class user extends Component {
     })
   }
 
+  //保存个人信息。
+  save(){
+      var url = 'http://192.168.5.22:8080/hud/rest/appUser/save.do?user=';
+
+      var user={
+        appUserId: this.state.appUserId,
+        userName:  this.state.userName,
+        status:  this.state.status,   //签名
+        sex:  this.state.sex,     //性别
+        district: this.state.district, //地区
+        carNum: this.state.carNum
+      };   //车牌号
+      url=url+JSON.stringify(user);
+      //Alert.alert('温馨提醒',user);
+      fetch(url)
+        .then((response) => response.json())
+        .then((responseData) => {
+
+        })
+        .catch(error =>
+        this.setState({
+          isLoading: false,
+          message: 'Something bad happened ' + error
+         }));
+
+  }
 
   //换头像
   selectPhotoTapped(picType) {
@@ -240,9 +270,12 @@ export default class user extends Component {
             </View>
 
               <View style={styles.contextRightView}>
-                <TouchableOpacity onPress={() => this.selectPhotoTapped('shenfen')} style={styles.uploadArea}>
+                <TouchableOpacity onPress={() => this.selectPhotoTapped()} style={styles.uploadArea}>
+
                   <Image source={this.state.avatarSource} style={styles.userIcon} />
-                  <Image source={require('../img/h.jpg') } style={styles.userIcon} />
+
+                  <Image source={{uri: this.state.url}} style={styles.userIcon} />
+
                 </TouchableOpacity>
               </View>
 
@@ -346,16 +379,18 @@ export default class user extends Component {
             </View>
           </View>
           <View style={styles.contextRowView}>
-          <View style={{flex: 1,justifyContent: 'center',alignItems: 'center',backgroundColor: '#5ab0e6',height: 60, alignSelf:'stretch',borderRadius: 7,marginLeft:20,marginRight:20}}>
-						<Text style={{ color: 'white',fontSize: 20,marginTop: 7}}>
-							保存
-						</Text>
-					</View>
+            <View style={{flex: 1,justifyContent: 'center',alignItems: 'center',backgroundColor: '#5ab0e6',height: 60, alignSelf:'stretch',borderRadius: 7,marginLeft:20,marginRight:20}}>
+              <TouchableOpacity onPress={() => this.save()} >
+                <Text style={{ color: 'white',fontSize: 20,marginTop: 7}}>
+  							       保存
+  						  </Text>
+              </TouchableOpacity>
+          </View>
           </View>
           <Text style={styles.description}>{this.state.message}</Text>
         </View>
 
-        
+
       </View>
     );
   }
