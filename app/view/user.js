@@ -113,6 +113,7 @@ var styles = StyleSheet.create({
 });
 
 //数据来源地址。
+//var wsUrl = 'http://123.57.247.48:8080/hud';
 var wsUrl = 'http://192.168.5.22:8080/hud';
 var REQUEST_URL = wsUrl + '/rest/appUser/getUserInfo.do?userId=1';
 
@@ -158,7 +159,7 @@ export default class user extends Component {
             district: responseData.district, //地区
             carNum: responseData.carNum,   //车牌号
             level: responseData.level,    //等级
-            url: wsUrl +  responseData.url      //头像的地址
+            url: responseData.url      //头像的地址
           });
         })
         .catch(error =>
@@ -178,7 +179,7 @@ export default class user extends Component {
 
   //保存个人信息。
   save(){
-      var url = 'http://192.168.5.22:8080/hud/rest/appUser/save.do?user=';
+      var url = wsUrl + '/rest/appUser/save.do?user=';
 
       var user={
         appUserId: this.state.appUserId,
@@ -186,14 +187,24 @@ export default class user extends Component {
         status:  this.state.status,   //签名
         sex:  this.state.sex,     //性别
         district: this.state.district, //地区
-        carNum: this.state.carNum
-      };   //车牌号
+        carNum: this.state.carNum  //车牌号
+      };
       url=url+JSON.stringify(user);
-      //Alert.alert('温馨提醒',user);
-      fetch(url)
+
+      //头像处理
+      let formData = new FormData();
+
+      if (this.state.url === null) {
+        formData.append("photo",{uri:this.state.photoUri,type:'application/octet-stream',name:'photo'});
+      }
+
+      let options = {};
+      options.body = formData;
+      options.method = 'post';
+
+      fetch(url, options)
         .then((response) => response.json())
         .then((responseData) => {
-
         })
         .catch(error =>
         this.setState({
@@ -242,7 +253,9 @@ export default class user extends Component {
           // You can display the image using either:
           source = {uri: response.uri, isStatic: true};
           this.setState({
-            avatarSource: source
+            url: null,
+            avatarSource: source,
+            photoUri: response.uri
           });
         }
       });
@@ -268,23 +281,20 @@ export default class user extends Component {
                   头像
                </Text>
             </View>
-
-              <View style={styles.contextRightView}>
-                <TouchableOpacity onPress={() => this.selectPhotoTapped()} style={styles.uploadArea}>
-
-                  <Image source={this.state.avatarSource} style={styles.userIcon} />
-
-                  <Image source={{uri: this.state.url}} style={styles.userIcon} />
-
+            <View style={styles.contextRightView}>
+                <TouchableOpacity onPress={() => this.selectPhotoTapped('')} style={styles.uploadArea}>
+                  {this.state.url === null || typeof(this.state.url)=== 'undefined' || this.state.url === '' ? (this.state.avatarSource !== null ? <Image source={this.state.avatarSource} style={styles.userIcon} />
+                    :<Text style={styles.contextRightText}> 点击这里选取头像 </Text>)
+                  : <Image source={{uri: this.state.url}} style={styles.userIcon} />
+                  }
                 </TouchableOpacity>
               </View>
-
           </View>
           <View style={styles.contextRowView}>
             <View style={styles.contextLeftView}>
-               <Text style={styles.contextLeftText}>
-                  昵称
-               </Text>
+              <Text style={styles.contextLeftText}>
+                昵称
+              </Text>
             </View>
             <View style={styles.contextRightView}>
               <TextInput style={styles.contextRightText}
@@ -320,7 +330,6 @@ export default class user extends Component {
                 <Picker.Item label="男" value="男" />
                 <Picker.Item label="女" value="女" />
               </Picker>
-
             </View>
           </View>
           <View style={styles.contextRowView}>
@@ -385,12 +394,10 @@ export default class user extends Component {
   							       保存
   						  </Text>
               </TouchableOpacity>
-          </View>
+            </View>
           </View>
           <Text style={styles.description}>{this.state.message}</Text>
         </View>
-
-
       </View>
     );
   }
