@@ -22,11 +22,11 @@ import {
 
 
 var styles = StyleSheet.create({
-  container: {  //ScrollView
+  container: {
     borderWidth: 0
   },
   pageView:{
-    height: 560
+    height: 570
   },
 
   topview: {
@@ -37,7 +37,7 @@ var styles = StyleSheet.create({
   //  justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: '#5ab0e6',
-    height: 50
+    height: 46
   },
   lessThenSignView:{
     flex: 1,
@@ -70,7 +70,7 @@ var styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     alignSelf: 'stretch',
-    height: 50,
+    height: 47,
     borderBottomWidth: 3,
     borderColor: '#f3f3f3',
   },
@@ -85,7 +85,7 @@ var styles = StyleSheet.create({
     marginRight: 20
   },
   contextLeftText:{ //内容左边的Text
-    //marginLeft: 20
+    width:100
   },
   contextRightText:{ //内容右边的Text
     alignItems: 'flex-end',
@@ -118,52 +118,75 @@ var styles = StyleSheet.create({
 //数据来源地址。
 //var wsUrl = 'http://123.57.247.48:8080/hud';
 var wsUrl = 'http://192.168.5.22:8080/hud';
-var REQUEST_URL = wsUrl + '/rest/appUser/getUserInfo.do?userId=1';
-
-var sexPicker = '{"男":"男",“女”:"女"}';
-
-export default class User extends Component {
+var REQUEST_URL = wsUrl + '/rest/car/carInfo.do?userId=1';
+var FECH_BRANDS_URL = wsUrl + '/rest/car/findBrands';
+var FECH_MODELS_URL = wsUrl + '/rest/car/findModels?brandId=';
+export default class CarInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      appUserId: '',
-      message: '',
+      carDp:'',   //头像的地址
+      carNum:'',
+      level:'',
+      brandId:0,
+      modelId:0,
+      driveDistance:'',
+      maintenanceCycle:0,
+      engineNum:'',
+      carCode:'',
+      appUserId:1,
+      avatarSource: null, //相册用
+      brandsMap:  [],
+      modelsMap:  [],
       isLoading: false,
-      userName: '',  //用户名称
-      appId: '',    //系统生成的ID
-      status: '',   //签名
-      sex: '',      //性别
-    	district: '', //地区
-    	carNum: '',   //车牌号
-    	level: '',    //等级
-    	url: '',       //头像的地址
-      avatarSource: null //相册用
+      message: ''
     };
-
     this.fetchData = this.fetchData.bind(this);
+    this.fetchModels = this.fetchModels.bind(this);
   }
 
   componentDidMount() {
     this.fetchData();
   }
+
+    //取汽车型号数据
+    fetchModels(brandId) {
+        fetch(FECH_MODELS_URL + brandId)
+          .then((response) => response.json())
+          .then((responseData) => {
+            console.log(responseData);
+            this.setState({
+              modelsMap: responseData
+            });
+          })
+          .catch(error =>
+          this.setState({
+            isLoading: false,
+            message: 'Something bad happened ' + error
+           }));
+      }
+
+  //取车的信息
   fetchData() {
       fetch(REQUEST_URL)
         .then((response) => response.json())
         .then((responseData) => {
-
           console.log(responseData);
           this.setState({
-            appUserId:responseData.appUserId,
-            userName: responseData.userName,
-            isLoading: true,
-            appId: responseData.appId,    //系统生成的ID
-            status: responseData.status,   //签名
-            sex: responseData.sex,      //性别
-            district: responseData.district, //地区
-            carNum: responseData.carNum,   //车牌号
-            level: responseData.level,    //等级
-            url: responseData.url      //头像的地址
+            carId: responseData.carInfo.id,
+            carDp: responseData.carInfo.carDp,
+            carNum: responseData.carInfo.carNum,
+            level: responseData.carInfo.level,
+            driveDistance: responseData.carInfo.driveDistance,
+            maintenanceCycle: responseData.carInfo.maintenanceCycle,
+            engineNum: responseData.carInfo.engineNum,
+            carCode: responseData.carInfo.carCode,
+            brandsMap: responseData.brands,
+            modelsMap: responseData.models,
+            brandId: responseData.carInfo.brandId,
+            modelId: responseData.carInfo.modelId
           });
+          //this.fetchBrands(responseData.brandId); //取汽车品牌数据
         })
         .catch(error =>
         this.setState({
@@ -173,32 +196,27 @@ export default class User extends Component {
     }
 
 
-  _save() {
-    this.props.navigator.push({
-      name: 'user',
-      component: user
-    })
-  }
-
   //保存个人信息。
   save(){
-      var url = wsUrl + '/rest/appUser/save.do?user=';
+      var url = wsUrl + '/rest/car/saveCarInfo.do?carInfo=';
 
-      var user={
+      var carInfo={
+        id: this.state.carId,
+        carNum: this.state.carNum,
+        driveDistance: this.state.driveDistance,
+        maintenanceCycle: this.state.maintenanceCycle,
+        engineNum: this.state.engineNum,
+        carCode: this.state.carCode,
         appUserId: this.state.appUserId,
-        userName:  this.state.userName,
-        status:  this.state.status,   //签名
-        sex:  this.state.sex,     //性别
-        district: this.state.district, //地区
-        carNum: this.state.carNum  //车牌号
+        modelId: this.state.modelId
       };
-      url=url+JSON.stringify(user);
+      url=url+JSON.stringify(carInfo);
 
       //头像处理
       let formData = new FormData();
       let options = {};
       if (this.state.avatarSource !== null) {
-        formData.append("photo",{uri:this.state.photoUri,type:'application/octet-stream',name:'photo'});
+        formData.append("carPhoto",{uri:this.state.photoUri,type:'application/octet-stream',name:'carPhoto'});
         options.body = formData;
       }
       options.method = 'post';
@@ -206,6 +224,9 @@ export default class User extends Component {
       fetch(url, options)
         .then((response) => response.json())
         .then((responseData) => {
+          this.setState({
+            carId: responseData.id
+          });
         })
         .catch(error =>
         this.setState({
@@ -274,21 +295,21 @@ export default class User extends Component {
             </TouchableOpacity>
           </View>
           <View style={styles.titleView}>
-            <Text style={styles.titleText}>个人信息</Text>
+            <Text style={styles.titleText}>车信息</Text>
           </View>
         </View>
         <View style={styles.contextView}>
           <View style={styles.userIconRowView}>
             <View style={styles.contextLeftView}>
                <Text style={styles.contextLeftText}>
-                  头像
+                  车像
                </Text>
             </View>
             <View style={styles.contextRightView}>
                 <TouchableOpacity onPress={() => this.selectPhotoTapped('')} style={styles.uploadArea}>
-                  {this.state.url === null || typeof(this.state.url)=== 'undefined' || this.state.url === '' ? (this.state.avatarSource !== null ? <Image source={this.state.avatarSource} style={styles.userIcon} />
-                    :<Text style={styles.contextRightText}> 点击这里选取头像 </Text>)
-                  : <Image source={{uri: this.state.url}} style={styles.userIcon} />
+                  {(this.state.carDp === null || typeof(this.state.carDp)=== 'undefined' || this.state.carDp === '') ? (this.state.avatarSource !== null ? <Image source={this.state.avatarSource} style={styles.userIcon} />
+                    :<Text style={styles.contextRightText}> 点击这里选车像 </Text>)
+                  : <Image source={{uri: this.state.carDp}} style={styles.userIcon} />
                   }
                 </TouchableOpacity>
               </View>
@@ -296,64 +317,8 @@ export default class User extends Component {
           <View style={styles.contextRowView}>
             <View style={styles.contextLeftView}>
               <Text style={styles.contextLeftText}>
-                昵称
+                车牌号
               </Text>
-            </View>
-            <View style={styles.contextRightView}>
-              <TextInput style={styles.contextRightText}
-                 underlineColorAndroid="transparent"
-                 onChangeText={(userName) => this.setState({userName})}
-                 value={this.state.userName}
-               />
-            </View>
-          </View>
-          <View style={styles.contextRowView}>
-            <View style={styles.contextLeftView}>
-               <Text style={styles.contextLeftText}>
-                  部落身份证
-               </Text>
-            </View>
-            <View style={styles.contextRightView}>
-              <Text style={styles.contextRightText}>
-                  {this.state.appId}
-              </Text>
-            </View>
-          </View>
-          <View style={styles.contextRowView}>
-            <View style={styles.contextLeftView}>
-               <Text style={styles.contextLeftText}>
-                  性别
-               </Text>
-            </View>
-            <View style={styles.contextRightView}>
-              <Picker mode={'dropdown'} style={{width:55}}
-                underlineColorAndroid="transparent"
-                selectedValue={this.state.sex}
-                onValueChange={(sex) => this.setState({sex: sex})}>
-                <Picker.Item label="男" value="男" />
-                <Picker.Item label="女" value="女" />
-              </Picker>
-            </View>
-          </View>
-          <View style={styles.contextRowView}>
-            <View style={styles.contextLeftView}>
-               <Text style={styles.contextLeftText}>
-                  地区
-               </Text>
-            </View>
-            <View style={styles.contextRightView}>
-              <TextInput style={styles.contextRightText}
-                 underlineColorAndroid="transparent"
-                 onChangeText={(district) => this.setState({district})}
-                 value={this.state.district}
-               />
-            </View>
-          </View>
-          <View style={styles.contextRowView}>
-            <View style={styles.contextLeftView}>
-               <Text style={styles.contextLeftText}>
-                  车牌号
-               </Text>
             </View>
             <View style={styles.contextRightView}>
               <TextInput style={styles.contextRightText}
@@ -366,32 +331,108 @@ export default class User extends Component {
           <View style={styles.contextRowView}>
             <View style={styles.contextLeftView}>
                <Text style={styles.contextLeftText}>
-                  等级
+                  品牌
                </Text>
             </View>
             <View style={styles.contextRightView}>
-              <Text style={styles.contextRightText}>
-                  {this.state.level}
-              </Text>
+              <Picker mode={'dialog'} style={{width:155}}
+                underlineColorAndroid="transparent"
+                selectedValue={this.state.brandId}
+                onValueChange={(brandId) => {
+                    this.setState({brandId: brandId});
+                    this.fetchModels(brandId);
+                  }}>
+                  {this.state.brandsMap.map((brand) => {
+                    return <Picker.Item value={brand.Id} label={brand.brand} key={brand.Id}  /> })}
+              </Picker>
             </View>
           </View>
           <View style={styles.contextRowView}>
             <View style={styles.contextLeftView}>
                <Text style={styles.contextLeftText}>
-                  个性签名
+                  型号
                </Text>
             </View>
             <View style={styles.contextRightView}>
-              <TextInput style={ {width: 200}}
+              <Picker mode={'dialog'} style={{width:155}}
+                underlineColorAndroid="transparent"
+                selectedValue={this.state.modelId}
+                onValueChange={(modelId) => {
+                    this.setState({modelId: modelId});
+                  }}>
+                  {this.state.modelsMap.map((model) => {
+                    return <Picker.Item value={model.Id} label={model.model} key={model.Id}/> })}
+              </Picker>
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  行驶距离
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <TextInput style={styles.contextRightText}
                  underlineColorAndroid="transparent"
-                 multiline={true}
-                 onChangeText={(status) => this.setState({status})}
-                 value={this.state.status}
+                 onChangeText={(driveDistance) => this.setState({driveDistance})}
+                 value={typeof(this.state.driveDistance) ==='undefined' ? '' : this.state.driveDistance.toString()}
                />
             </View>
           </View>
           <View style={styles.contextRowView}>
-            <View style={{flex: 1,justifyContent: 'center',alignItems: 'center',backgroundColor: '#5ab0e6',height: 50, alignSelf:'stretch',borderRadius: 7,marginLeft:20,marginRight:20}}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  保养周期
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <TextInput style={styles.contextRightText}
+                 underlineColorAndroid="transparent"
+                 onChangeText={(maintenanceCycle) => this.setState({maintenanceCycle})}
+                 value={typeof(this.state.maintenanceCycle) ==='undefined' ? '' : this.state.maintenanceCycle.toString()}
+               />
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  发动机代码
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <TextInput style={styles.contextRightText}
+                 underlineColorAndroid="transparent"
+                 onChangeText={(engineNum) => this.setState({engineNum})}
+                 value={this.state.engineNum}
+               />
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  车辆识别代码
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+              <TextInput style={styles.contextRightText}
+                 underlineColorAndroid="transparent"
+                 onChangeText={(carCode) => this.setState({carCode})}
+                 value={this.state.carCode}
+               />
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={styles.contextLeftView}>
+               <Text style={styles.contextLeftText}>
+                  等级
+               </Text>
+            </View>
+            <View style={styles.contextRightView}>
+
+            </View>
+          </View>
+          <View style={styles.contextRowView}>
+            <View style={{flex: 1,justifyContent: 'center',alignItems: 'center',backgroundColor: '#5ab0e6',height: 47, alignSelf:'stretch',borderRadius: 7,marginLeft:20,marginRight:20}}>
               <TouchableOpacity onPress={() => this.save()} >
                 <Text style={{ color: 'white',fontSize: 20,marginTop: 7}}>
   							       保存
@@ -402,7 +443,9 @@ export default class User extends Component {
           <Text style={styles.description}>{this.state.message}</Text>
         </View>
       </View>
+
       </ScrollView>
+
     );
   }
 }

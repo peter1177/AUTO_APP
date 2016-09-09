@@ -10,6 +10,7 @@ import TabNavigator from 'react-native-tab-navigator';
 
 import User from './user';
 
+import CarInfo from './carInfo';
 import {
   AppRegistry,
   StyleSheet,
@@ -39,9 +40,16 @@ export default class index extends Component {
       name: 'User',
       component: User
     })
-
-
   }
+
+  //点击车像 段忠琳 20160902
+  _pressCar = () => {
+        this.props.navigator.push({
+          name: 'CarInfo',
+          component: CarInfo
+        })
+  }
+
 
 
   render() {
@@ -78,18 +86,18 @@ export default class index extends Component {
     );
 
 
-     
+
 
     return (
-      <TabNavigator tabBarStyle={styles.tab} > 
-        <TabNavigator.Item 
+      <TabNavigator tabBarStyle={styles.tab} >
+        <TabNavigator.Item
           selected={this.state.selectedTab === 'home'}
           // title="首页"
           renderIcon={() => <Image source={require('../images/2.png') } />}
           renderSelectedIcon={() => <Image source={require('../images/1.png') } />}
           // badgeText="1"
           onPress={() => this.setState({ selectedTab: 'home' }) }>
-          <MainPage onPressH={this._pressH} />
+          <MainPage onPressH={this._pressH} onPressCar={this._pressCar}  />
         </TabNavigator.Item>
         <TabNavigator.Item
           selected={this.state.selectedTab === 'zhishiku'}

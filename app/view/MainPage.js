@@ -203,19 +203,13 @@ export default class MainPage extends Component {
 
   _pressH() {
 
-    // this.props.navigator.push({
-    //   name: 'User',
-    //   component: User
-    // })
-
-
     this.props.onPressH();
   }
 
-
-
-
-
+  //点击车像 段忠琳 20160902
+  _pressCar() {
+      this.props.onPressCar();
+  }
 
   render() {
 
@@ -280,8 +274,10 @@ export default class MainPage extends Component {
 
         <View style={styles.autoView}>
           <View style={styles.lichengView}>
+            <TouchableOpacity onPress={this._pressCar.bind(this) } >
+              <Image source={require('../images/auto.png') } style={styles.autoImg} />
+            </TouchableOpacity>
 
-            <Image source={require('../images/auto.png') } style={styles.autoImg} />
             <Text style={{ fontSize: 20, fontWeight: 'bold', marginLeft: 60 }}>
               奥迪 A6L
             </Text>
